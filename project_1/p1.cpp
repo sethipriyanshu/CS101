@@ -17,20 +17,49 @@ void HelpFunction(){
     cout << setw(20) << right << "avg col_name"<<endl;
 }
 
+void ComaFormatter(string filename){
+ // helperfunction? potentially?
+}
 
+
+void PrintFunction(string filename, int columnWidth){
+    ifstream inFile;
+    inFile.open(filename);
+    if(!inFile){
+        cout << "Error: could not open file" << endl;
+        return;
+    }
+    string line;
+    while(getline(inFile, line)){
+        stringstream ss(line);
+        string item;
+        while (getline(ss, item, ',')) {
+            cout << setw(columnWidth) << right << item;
+        }
+        cout << endl;
+    }
+    inFile.close();
+   
+}
+
+void ColFunction(){
+    //todo
+}
 
 
 
 
 int main(int argc, char* argv[]){
 
-    if(argc !=2 ){
+    if(argc !=3 ){
         cout << "Usage: program_name.exe columnwidth"<< endl;
         return 1;
     }
 
     string userCmd = "";
-    HelpFunction();
+    int columnWidth = stoi(argv[2]);
+    string filename = argv[1];
+
     
     while(userCmd != "quit"){
         cout << "Enter a command or \"help\" for a command list:" << endl;
