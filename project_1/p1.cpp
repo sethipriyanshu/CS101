@@ -42,8 +42,22 @@ void PrintFunction(string filename, int columnWidth){
    
 }
 
-void ColFunction(){
-    //todo
+void ColFunction(string filename){  
+    ifstream inFile;
+    inFile.open(filename);
+    if(!inFile){
+        cout << "Error: could not open file" << endl;
+        return;
+    }
+    string line;
+    getline(inFile, line);
+    stringstream ss(line);
+    string item;
+    while (getline(ss, item, ',')) {
+        cout << item << endl;
+    }
+    inFile.close();
+
 }
 
 
