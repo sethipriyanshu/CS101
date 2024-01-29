@@ -262,14 +262,56 @@ int main(int argc, char* argv[]){
     string userCmd = "";    
     int columnWidth = stoi(argv[2]);
     string filename = argv[1];
-    AvgFunction(filename,"Weight");
     
     while(userCmd != "quit"){
         cout << "Enter a command or \"help\" for a command list:" << endl;
         cin >> userCmd;
         
+        if(userCmd == "help"){
+            HelpFunction();
+        }
+        else if(userCmd == "print"){
+            PrintFunction(filename, columnWidth);
+        }
+        else if(userCmd == "cols"){
+            ColFunction(filename);
+        }
+        else if(userCmd == "search"){
+            string col_name;
+            string val;
+            cin >> col_name >> val;
+            SearchRowFunction(filename, col_name, val, columnWidth);
+        }
+        else if(userCmd == "min"){
+            string col_name;
+            cin >> col_name;
+            MinFunction(filename, col_name);
+        }
+        else if(userCmd == "max"){
+            string col_name;
+            cin >> col_name;
+            MaxFunction(filename, col_name);
+        }
+        else if(userCmd == "avg"){
+            string col_name;
+            cin >> col_name;
+            AvgFunction(filename, col_name);
+        }
+        else if(userCmd == "quit"){
+            cout << "Goodbye!" << endl;
+        }
+        else{
+            cout << "Invalid command" << endl;
+        }
 
     }
     
 
 }
+
+
+// issues:
+// prints out column not found in search "First name" "Mac" (is read first name and mac differently as commands)
+// prints the column names in search age 100 in addition to column not found message
+// fix all error messages according to the project description
+// error on avg empty and program stops running
