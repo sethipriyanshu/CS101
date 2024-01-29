@@ -162,9 +162,95 @@ void MinFunction(string filename, string col_name){
             i++;
         }
     }
-    cout<<"The min for col "<<col_name <<" = " << min << endl;
+    cout<<"The min for col "<< "\""<<col_name <<"\"" <<" = " << min << endl;
     inFile.close();
 }
+
+void MaxFunction(string filename, string col_name){
+    ifstream inFile;
+    inFile.open(filename);
+    if(!inFile){
+        cout << "Error: could not open file" << endl;
+        return;
+    }
+    string line;
+    getline(inFile, line);
+    stringstream ss(line);
+    string item;
+    int col_index = -1;
+    int i = 0;
+    while (getline(ss, item, ',')) {
+        if (item == col_name) {
+            col_index = i;
+        }
+        i++;
+    }
+    if (col_index == -1) {
+        cout << "Column not found" << endl;
+        return;
+    }
+    double max = 0;
+    bool first = true;
+    while(getline(inFile, line)){
+        stringstream ss(line);
+        string item;
+        int i = 0;
+        while (getline(ss, item, ',')) {
+            if (i == col_index) {
+                double val = stod(item);
+                if (first || val > max) {
+                    max = val;
+                    first = false;
+                }
+            }
+            i++;
+        }
+    }
+    cout<<"The max for col "<<"\""<<col_name <<"\"" <<" = " << max << endl;
+    inFile.close();
+}
+
+void AvgFunction(string filename, string col_name){
+    ifstream inFile;
+    inFile.open(filename);
+    if(!inFile){
+        cout << "Error: could not open file" << endl;
+        return;
+    }
+    string line;
+    getline(inFile, line);
+    stringstream ss(line);
+    string item;
+    int col_index = -1;
+    int i = 0;
+    while (getline(ss, item, ',')) {
+        if (item == col_name) {
+            col_index = i;
+        }
+        i++;
+    }
+    if (col_index == -1) {
+        cout << "Column not found" << endl;
+        return;
+    }
+    double sum = 0;
+    int count = 0;
+    while(getline(inFile, line)){
+        stringstream ss(line);
+        string item;
+        int i = 0;
+        while (getline(ss, item, ',')) {
+            if (i == col_index) {
+                sum += stod(item);
+                count++;
+            }
+            i++;
+        }
+    }
+    cout<<"The avg for col "<<"\""<<col_name <<"\"" <<" = " << sum/count << endl;
+    inFile.close();
+}
+
 
 int main(int argc, char* argv[]){
 
@@ -173,10 +259,10 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
-    string userCmd = "";
+    string userCmd = "";    
     int columnWidth = stoi(argv[2]);
     string filename = argv[1];
-    MinFunction(filename,"Age");
+    AvgFunction(filename,"Weight");
     
     while(userCmd != "quit"){
         cout << "Enter a command or \"help\" for a command list:" << endl;
