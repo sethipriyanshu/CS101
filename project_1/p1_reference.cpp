@@ -13,13 +13,13 @@
 
 using namespace std;
 
-typedef vector<pair<string, string>> DataPairVector;
+typedef vector<pair<string, string> > DataRow;
 
-vector<string> splitString(const string &str, char delimiter)
+vector<string> split(const string &s, char delimiter)
 {
     vector<string> tokens;
     string token;
-    istringstream tokenStream(str);
+    istringstream tokenStream(s);
     while (getline(tokenStream, token, delimiter))
     {
         tokens.push_back(token);
@@ -27,10 +27,10 @@ vector<string> splitString(const string &str, char delimiter)
     return tokens;
 }
 
-string removeQuotesFromString(const string &str)
+string removeQuotes(const string &s)
 {
     string result;
-    for (char c : str)
+    for (char c : s)
     {
         if (c != '"')
         {
@@ -40,15 +40,15 @@ string removeQuotesFromString(const string &str)
     return result;
 }
 
-pair<vector<string>, vector<DataPairVector>> readCsvFile(const string &filename)
+pair<vector<string>, vector<DataRow> > readCsv(const string &filename)
 {
     vector<string> headers;
-    vector<DataPairVector> data;
+    vector<DataRow> data;
     ifstream file(filename);
     string line;
     while (getline(file, line))
     {
-        vector<string> values = splitString(line, ',');
+        vector<string> values = split(line, ',');
         if (line.back() == ',')
         {
             values.push_back("");
@@ -57,15 +57,15 @@ pair<vector<string>, vector<DataPairVector>> readCsvFile(const string &filename)
         {
             for (string &value : values)
             {
-                headers.push_back(removeQuotesFromString(value));
+                headers.push_back(removeQuotes(value));
             }
         }
         else
         {
-            DataPairVector row;
+            DataRow row;
             for (size_t i = 0; i < headers.size() && i < values.size(); ++i)
             {
-                row.push_back(make_pair(headers[i], removeQuotesFromString(values[i])));
+                row.push_back(make_pair(headers[i], removeQuotes(values[i])));
             }
             data.push_back(row);
         }
@@ -73,7 +73,7 @@ pair<vector<string>, vector<DataPairVector>> readCsvFile(const string &filename)
     return make_pair(headers, data);
 }
 
-void printDataRow(const DataPairVector &row, int width)
+void printRow(const DataRow &row, int width)
 {
     for (const auto &pair : row)
     {
@@ -82,7 +82,7 @@ void printDataRow(const DataPairVector &row, int width)
     cout << endl;
 }
 
-void printDataInfo(const vector<string> &headers, const vector<DataPairVector> &data, int width)
+void printData(const vector<string> &headers, const vector<DataRow> &data, int width)
 {
     if (!data.empty())
     {
@@ -93,12 +93,11 @@ void printDataInfo(const vector<string> &headers, const vector<DataPairVector> &
         cout << endl;
         for (const auto &row : data)
         {
-            printDataRow(row, width);
+            printRow(row, width);
         }
     }
 }
-
-void printColumnNamesFromDataRow(const DataPairVector &row)
+void printColumnNames(const DataRow &row)
 {
     for (const auto &pair : row)
     {
@@ -106,14 +105,14 @@ void printColumnNamesFromDataRow(const DataPairVector &row)
     }
 }
 
-void searchData(const vector<string> &headers, const vector<DataPairVector> &data, const string &columnName, const string &value, int width)
+void search(const vector<string> &headers, const vector<DataRow> &data, const string &columnName, const string &value, int width)
 {
     bool found = false;
     bool c = false;
     bool columnExists = false;
-    for (const DataPairVector &row : data)
+    for (const DataRow &row : data)
     {
-
+        
         for (const auto &pair : row)
         {
             if (pair.first == columnName)
@@ -127,7 +126,7 @@ void searchData(const vector<string> &headers, const vector<DataPairVector> &dat
 
             for (const auto &pair : row)
             {
-                if ((columnName == "*" || pair.first == columnName) && pair.second == value)
+                if ( (columnName == "*" || pair.first == columnName) && pair.second == value)
                 {
                     if (!c)
                     {
@@ -138,7 +137,7 @@ void searchData(const vector<string> &headers, const vector<DataPairVector> &dat
                         }
                         cout << endl;
                     }
-                    printDataRow(row, width);
+                    printRow(row, width);
                     found = true;
                     break;
                 }
@@ -147,8 +146,7 @@ void searchData(const vector<string> &headers, const vector<DataPairVector> &dat
     }
     if (!found)
     {
-        if (columnExists || columnName == "*")
-        {
+        if (columnExists || columnName == "*") {
             cout << "No results" << endl;
         }
         else
@@ -158,18 +156,18 @@ void searchData(const vector<string> &headers, const vector<DataPairVector> &dat
     }
 }
 
-void performCalculation(const vector<DataPairVector> &data, const string &columnName, const string &operation)
+void calculate(const vector<DataRow> &data, const string &columnName, const string &operation)
 {
     double minVal = DBL_MAX;
     double maxVal = DBL_MIN;
     double sum = 0.0;
-    double val = 0.0;
+    double value = 0.0;
     int count = 0;
     bool ct = false;
     bool columnExists = false;
-    for (const DataPairVector &row : data)
+    for (const DataRow &row : data)
     {
-
+        
         for (const auto &pair : row)
         {
             if (pair.first == columnName)
@@ -187,7 +185,7 @@ void performCalculation(const vector<DataPairVector> &data, const string &column
                 {
                     try
                     {
-                        val = stod(pair.second);
+                        value = stod(pair.second);
                     }
                     catch (const invalid_argument &)
                     {
@@ -200,9 +198,9 @@ void performCalculation(const vector<DataPairVector> &data, const string &column
                 ct = false;
                 continue;
             }
-            minVal = min(minVal, val);
-            maxVal = max(maxVal, val);
-            sum += val;
+            minVal = min(minVal, value);
+            maxVal = max(maxVal, value);
+            sum += value;
             ++count;
         }
     }
@@ -242,9 +240,9 @@ int main(int argc, char *argv[])
     string filename = argv[1];
     int width = stoi(argv[2]);
 
-    pair<vector<string>, vector<DataPairVector>> dataRows = readCsvFile(filename);
-    vector<string> headers = dataRows.first;
-    vector<DataPairVector> data = dataRows.second;
+    pair<vector<string>, vector<DataRow> > dr = readCsv(filename);
+    vector<string> headers = dr.first;
+    vector<DataRow> data = dr.second;
     if (data.empty())
     {
         cout << "Failed to open \"" << filename << "\"" << endl;
@@ -254,80 +252,80 @@ int main(int argc, char *argv[])
     string command;
     cout << "Enter a command or \"help\" for a command list:" << endl;
     while (cin >> command)
+{
+    if (command == "quit")
     {
-        if (command == "quit")
+        break;
+    }
+    else if (command == "help")
+    {
+        cout << "command list:\n\tprint\n\tcols\n\tsearch *|col_name val\n\tmin col_name\n\tmax col_name\n\tavg col_name" << endl;
+    }
+    else if (command == "print")
+    {
+        printData(headers, data, width);
+    }
+    else if (command == "cols")
+    {
+        printColumnNames(data[0]);
+    }
+    else if (command == "search")
+    {
+        string columnName;
+        string value;
+        string input;
+        getline(cin, input);
+        istringstream iss(input);
+        int quoteC = count(input.begin(), input.end(), '\"');
+        if (quoteC == 4)
         {
-            break;
+            getline(iss, columnName, '\"');
+            getline(iss, columnName, '\"');
+            getline(iss, value, '\"');
+            getline(iss, value, '\"');
         }
-        else if (command == "help")
+        else if (quoteC == 2 && input[1] == '\"')
         {
-            cout << "command list:\n\tprint\n\tcols\n\tsearch *|col_name val\n\tmin col_name\n\tmax col_name\n\tavg col_name" << endl;
+            getline(iss, columnName, '\"');
+            getline(iss, columnName, '\"');
+            iss >> value;
         }
-        else if (command == "print")
+        else if (quoteC == 2 && input[1] != '\"')
         {
-            printDataInfo(headers, data, width);
-        }
-        else if (command == "cols")
-        {
-            printColumnNamesFromDataRow(data[0]);
-        }
-        else if (command == "search")
-        {
-            string columnName;
-            string value;
-            string input;
-            getline(cin, input);
-            istringstream iss(input);
-            int quoteCount = count(input.begin(), input.end(), '\"');
-            if (quoteCount == 4)
-            {
-                getline(iss, columnName, '\"');
-                getline(iss, columnName, '\"');
-                getline(iss, value, '\"');
-                getline(iss, value, '\"');
-            }
-            else if (quoteCount == 2 && input[1] == '\"')
-            {
-                getline(iss, columnName, '\"');
-                getline(iss, columnName, '\"');
-                iss >> value;
-            }
-            else if (quoteCount == 2 && input[1] != '\"')
-            {
-                iss >> columnName;
-                getline(iss, value, '\"');
-                getline(iss, value, '\"');
-            }
-            else
-            {
-                iss >> columnName >> value;
-            }
-            searchData(headers, data, removeQuotesFromString(columnName), removeQuotesFromString(value), width);
-        }
-        else if (command == "min" || command == "max" || command == "avg")
-        {
-            string columnName;
-            string input;
-            getline(cin, input);
-            istringstream iss(input);
-            if (count(input.begin(), input.end(), '\"') >= 2)
-            {
-                getline(iss, columnName, '\"');
-                getline(iss, columnName, '\"');
-            }
-            else
-            {
-                iss >> columnName;
-            }
-            performCalculation(data, removeQuotesFromString(columnName), command);
+            iss >> columnName;
+            getline(iss, value, '\"');
+            getline(iss, value, '\"');
         }
         else
         {
-            cout << "Invalid command" << endl;
-            cin.ignore(100000, '\n');
+            iss >> columnName >> value;
         }
-        cout << "\nEnter a command or \"help\" for a command list:" << endl;
+        search(headers, data, removeQuotes(columnName), removeQuotes(value), width);
     }
+    else if (command == "min" || command == "max" || command == "avg")
+    {
+        string columnName;
+        string input;
+        getline(cin, input);
+        istringstream iss(input);
+        if (count(input.begin(), input.end(), '\"') >= 2)
+        {
+            getline(iss, columnName, '\"');
+            getline(iss, columnName, '\"');
+        }
+        else
+        {
+            iss >> columnName;
+        }
+        calculate(data, removeQuotes(columnName), command);
+    }
+    else
+    {
+        cout << "Invalid command" << endl;
+        cin.ignore(100000, '\n');
+    }
+    cout << "\nEnter a command or \"help\" for a command list:" << endl;
+}
 
     return 0;
 }
