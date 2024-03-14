@@ -351,20 +351,57 @@ bool ContactList::removeInfo(std::string first, std::string last, std::string in
 
 // destroy the list by removing all contacts and their infos
 ContactList::~ContactList() {
-
+    Contact *cur = headContactList, *nextContact;
+    while (cur != nullptr) {
+        nextContact = cur->next;
+        Info *curInfo = cur->headInfoList, *nextInfo;
+        while (curInfo != nullptr) {
+            nextInfo = curInfo->next;
+            delete curInfo; // Free each Info node
+            curInfo = nextInfo;
+        }
+        delete cur; // Free each Contact node
+        cur = nextContact;
+    }
 }
 
 // deep copy the source list
 // - do not forget to update count
 ContactList::ContactList(const ContactList &src) {
-
+ headContactList = nullptr;
+    count = src.count;
+    Contact **lastPtr = &headContactList;
+    for (Contact *srcCur = src.headContactList; srcCur != nullptr; srcCur = srcCur->next) {
+        *lastPtr = new Contact(srcCur->first, srcCur->last);
+        Info **lastInfoPtr = &((*lastPtr)->headInfoList);
+        for (Info *srcInfo = srcCur->headInfoList; srcInfo != nullptr; srcInfo = srcInfo->next) {
+            *lastInfoPtr = new Info(srcInfo->name, srcInfo->value);
+            lastInfoPtr = &((*lastInfoPtr)->next);
+        }
+        lastPtr = &((*lastPtr)->next);
+    }
 }
 
 // remove all contacts and their info then deep copy the source list
 // - do not forget to update count
 const ContactList &ContactList::operator=(const ContactList &src) {
-    if (this != &src) {
+ if (this != &src) { // Protect against self-assignment
+        // Clear current list
+        this->~ContactList(); // Reuse destructor to free current memory
 
+        // Deep copy from src
+        headContactList = nullptr;
+        count = src.count;
+        Contact **lastPtr = &headContactList;
+        for (Contact *srcCur = src.headContactList; srcCur != nullptr; srcCur = srcCur->next) {
+            *lastPtr = new Contact(srcCur->first, srcCur->last);
+            Info **lastInfoPtr = &((*lastPtr)->headInfoList);
+            for (Info *srcInfo = srcCur->headInfoList; srcInfo != nullptr; srcInfo = srcInfo->next) {
+                *lastInfoPtr = new Info(srcInfo->name, srcInfo->value);
+                lastInfoPtr = &((*lastInfoPtr)->next);
+            }
+            lastPtr = &((*lastPtr)->next);
+        }
     }
     return *this;
 }
