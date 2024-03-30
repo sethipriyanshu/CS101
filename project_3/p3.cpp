@@ -405,3 +405,4 @@ const ContactList &ContactList::operator=(const ContactList &src) {
     }
     return *this;
 }
+
